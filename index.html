@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#e5503a">
+  <title>業務日報</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e5503a'/%3E%3Cpath d='M9 10h14M9 16h14M9 22h9' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>業務日報</h1>
+      </div>
+      <nav class="view-tabs" aria-label="表示切替">
+        <button type="button" data-view="plan">予定</button>
+        <button type="button" data-view="actual">実績・日報</button>
+        <button type="button" data-view="history">履歴</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="day-bar" id="day-bar">
+      <div class="date-nav">
+        <button type="button" class="icon-btn" id="prev-day" aria-label="前の日">‹</button>
+        <label class="date-field">
+          <span class="sr-only">日付</span>
+          <input type="date" id="date-input">
+          <span class="date-label" id="date-label" aria-hidden="true"></span>
+        </label>
+        <button type="button" class="icon-btn" id="next-day" aria-label="次の日">›</button>
+        <button type="button" class="btn small ghost" id="today-btn">今日</button>
+      </div>
+      <label class="member-field">
+        <span class="sr-only">担当者</span>
+        <select id="member-select"></select>
+      </label>
+      <span class="chip" id="status-chip"></span>
+    </div>
+
+    <!-- 予定 -->
+    <section id="plan-view" class="view" aria-labelledby="plan-title">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="plan-title" tabindex="-1">予定</h2>
+          <span class="total" id="plan-total"></span>
+          <span class="spacer"></span>
+          <button type="button" class="btn small ghost" id="add-plan">＋ 予定</button>
+        </div>
+
+        <div class="plan-layout">
+          <div class="plan-main">
+            <ol class="plan-list" id="plan-list" aria-label="予定一覧"></ol>
+            <p class="empty" id="plan-empty">予定はまだありません</p>
+            <div class="bulk-row" id="bulk-row">
+              <span class="bulk-note" id="bulk-note"></span>
+              <button type="button" class="btn primary" id="add-all">すべて実績に追加</button>
+            </div>
+          </div>
+
+          <div class="timeline-box" aria-label="タイムライン">
+            <div class="timeline-scroll" id="timeline-scroll">
+              <div class="timeline" id="timeline">
+                <div class="hours" id="hours" aria-hidden="true"></div>
+                <div class="lane" id="lane-plan" data-kind="plan" role="group" aria-label="予定のタイムライン"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 実績・日報 -->
+    <section id="actual-view" class="view" aria-labelledby="actual-title" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="actual-title" tabindex="-1">実績</h2>
+          <span class="total" id="actual-total"></span>
+          <span class="spacer"></span>
+          <button type="button" class="link-btn pending-link" id="pending-link" hidden></button>
+        </div>
+
+        <div class="entry-head" id="entry-head" aria-hidden="true">
+          <span>時間</span><span>作業</span>
+        </div>
+        <ol class="entry-list" id="entry-list" aria-label="実績一覧"></ol>
+        <div class="empty-block" id="entry-empty">
+          <p class="empty">実績はまだありません</p>
+          <button type="button" class="btn primary" id="empty-add-all" hidden>予定をすべて追加</button>
+        </div>
+        <button type="button" class="btn small ghost add-entry" id="add-entry">＋ 予定にない作業</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2><label for="summary">総括</label></h2>
+          <span class="spacer"></span>
+          <span class="count" id="summary-count" aria-hidden="true"></span>
+        </div>
+        <textarea id="summary" rows="5" placeholder="成果・課題・明日やること"></textarea>
+        <div class="save-row">
+          <span class="save-state" id="save-state" aria-live="polite"></span>
+          <button type="button" class="btn primary" id="save-report">日報を保存</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 履歴 -->
+    <section id="history-view" class="view" aria-labelledby="history-title" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="history-title">履歴</h2>
+          <span class="total" id="history-count" aria-live="polite"></span>
+        </div>
+        <form class="filters" id="history-filters" role="search">
+          <label>
+            <span>担当者</span>
+            <select id="filter-member"></select>
+          </label>
+          <label>
+            <span>開始日</span>
+            <input type="date" id="filter-from">
+          </label>
+          <label>
+            <span>終了日</span>
+            <input type="date" id="filter-to">
+          </label>
+          <label class="grow">
+            <span>キーワード</span>
+            <input type="search" id="filter-text" placeholder="作業名・総括">
+          </label>
+          <button type="reset" class="btn small ghost">クリア</button>
+        </form>
+        <div id="history-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="local-note">
+    <span>データはこのブラウザ内にのみ保存されます</span>
+    <button type="button" class="link-btn" id="reset-demo">サンプルに戻す</button>
+  </footer>
+
+  <dialog id="item-dialog" aria-labelledby="dialog-title">
+    <form id="item-form" novalidate>
+      <h2 id="dialog-title" tabindex="-1">予定を追加</h2>
+      <label class="field">
+        <span>作業名</span>
+        <input type="text" id="f-title" list="title-suggestions" autocomplete="off" required>
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>開始</span>
+          <input type="time" id="f-start" step="900" required>
+        </label>
+        <label class="field">
+          <span>終了</span>
+          <input type="time" id="f-end" step="900" required>
+        </label>
+      </div>
+      <p class="form-error" id="f-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger-ghost" id="dialog-delete">削除</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" id="dialog-cancel">キャンセル</button>
+        <button type="submit" class="btn primary">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <datalist id="title-suggestions"></datalist>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
